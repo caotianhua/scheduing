@@ -1,0 +1,97 @@
+{
+  "rows": [
+    {
+      "$eq_bqid": null,
+      "$in_zt": null,
+      "$like_fzmc": null,
+      "fzid": 1045,
+      "bqid": "270",
+      "fzmc": "1",
+      "fzgc": "1-40",
+      "plxh": 1,
+      "zt": 0
+    },
+    {
+      "$eq_bqid": null,
+      "$in_zt": null,
+      "$like_fzmc": null,
+      "fzid": 1046,
+      "bqid": "270",
+      "fzmc": "2",
+      "fzgc": "1-40",
+      "plxh": 2,
+      "zt": 0
+    },
+    {
+      "$eq_bqid": null,
+      "$in_zt": null,
+      "$like_fzmc": null,
+      "fzid": 1047,
+      "bqid": "270",
+      "fzmc": "3",
+      "fzgc": "1-40",
+      "plxh": 3,
+      "zt": 0
+    },
+    {
+      "$eq_bqid": null,
+      "$in_zt": null,
+      "$like_fzmc": null,
+      "fzid": 1048,
+      "bqid": "270",
+      "fzmc": "4",
+      "fzgc": "1-40",
+      "plxh": 4,
+      "zt": 0
+    },
+    {
+      "$eq_bqid": null,
+      "$in_zt": null,
+      "$like_fzmc": null,
+      "fzid": 1049,
+      "bqid": "270",
+      "fzmc": "5",
+      "fzgc": "1-40",
+      "plxh": 5,
+      "zt": 0
+    },
+    {
+      "$eq_bqid": null,
+      "$in_zt": null,
+      "$like_fzmc": null,
+      "fzid": 1050,
+      "bqid": "270",
+      "fzmc": "6",
+      "fzgc": "1-40",
+      "plxh": 6,
+      "zt": 0
+    },
+    {
+      "$eq_bqid": null,
+      "$in_zt": null,
+      "$like_fzmc": null,
+      "fzid": 1120,
+      "bqid": "270",
+      "fzmc": "机动组",
+      "fzgc": null,
+      "plxh": 7,
+      "zt": 0
+    },
+    {
+      "$eq_bqid": null,
+      "$in_zt": null,
+      "$like_fzmc": null,
+      "fzid": 1121,
+      "bqid": "270",
+      "fzmc": "彭天赋",
+      "fzgc": null,
+      "plxh": 8,
+      "zt": 0
+    }
+  ],
+  "total": 1,
+  "maxResults": 12,
+  "currentPage": 0,
+  "records": 12,
+  "firstResult": -12
+}
