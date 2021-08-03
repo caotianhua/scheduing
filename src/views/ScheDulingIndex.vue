@@ -83,20 +83,17 @@
                    height="88%"
                    class="myscheduing"
                    :destroyOnClose="true"
+                   :closable="false"
                    :maskClosable="false">
-            <template slot="footer">
+            <template slot="footer"
+                      v-if="1">
               <a-button key="back"
                         @click="schedulinghandleCancel">
                 退出排班管理
               </a-button>
-              <!-- <a-button key="submit"
-                        type="primary"
-                        :loading="loading"
-                        @click="handleOk">
-                Submit
-              </a-button> -->
             </template>
-            <NewMyScheDuing></NewMyScheDuing>
+            <NewMyScheDuing class="myscheduingbox"
+                            @schedulinghandleCancel="schedulinghandleCancel"></NewMyScheDuing>
             <!-- <ScheDuling v-if="1"></ScheDuling> -->
             <!-- <MyScheDuling></MyScheDuling> -->
             <!-- <Old></Old> -->
@@ -108,7 +105,7 @@
           <a-modal v-model="visible"
                    title="人员分组"
                    width="800px"
-                   height="88%"
+                   height="96%"
                    :destroyOnClose="true"
                    :maskClosable="false"
                    on-ok="handleOk">
@@ -131,7 +128,7 @@
         <div class="personnelgrouping">
           <a-modal v-model="visibleSchedulingShift"
                    title="排班班次"
-                   width="800px"
+                   width="96%"
                    height="88%"
                    :destroyOnClose="true"
                    :maskClosable="false"
@@ -470,6 +467,10 @@ export default {
 }
 </style>
 <style>
+.ant-modal-wrap {
+  overflow: hidden !important;
+  height: 100%;
+}
 .groupingtable .ant-table table,
 .groupingtable .ant-table table tr,
 .groupingtable .ant-table table tr > td {
@@ -479,7 +480,21 @@ export default {
 .ant-message {
   top: 30% !important;
 }
+.myscheduing {
+  min-height: 600px;
+  overflow-y: auto;
+}
+.myscheduingbox {
+  width: 100%;
+  height: 600px;
+  overflow-y: auto;
+  overflow-x: auto;
+}
 .myscheduing .ant-modal {
   min-width: 1520px !important;
+  top: 18px !important;
+}
+.ant-modal {
+  top: 18px !important;
 }
 </style>

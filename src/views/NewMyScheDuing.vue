@@ -2,7 +2,40 @@
   <div class="home">
     <div class="content"
          id="external-events">
+      <a-row class="modulheadbox">
+        <a-col :span="21">
+          <div class="modulhead">
+            <a-button type="primary"
+                      @click="childMethod('班次排班保存')"
+                      class="functionbutton">
+              保存
+            </a-button>
+            <a-button type="primary"
+                      @click="childMethod('班次排班取消')"
+                      class="functionbutton">
+              取消
+            </a-button>
+          </div>
+        </a-col>
+        <a-col :span="3">
+          <div class="bancibtn">
+            <a-button type="primary"
+                      @click="changrounping('班次类型')"
+                      size="small"
+                      class="functionbutton">
+              班次类型
+            </a-button>
+            <a-button type="primary"
+                      size="small"
+                      @click="changrounping('班次分组')"
+                      class="functionbutton">
+              班次分组
+            </a-button>
+          </div>
+        </a-col>
+      </a-row>
       <a-row>
+
         <a-col :span="2">
           <div class="perlist">
             <div class="pdleft">
@@ -64,21 +97,19 @@
                        :showHeader="true"
                        :row-class-name="isRedRow"
                        :data-source="tabledata">
-                <!-- <a-table slot-scope="record"
-                         slot="expandedRowRender"
-                         :showHeader="false"
-                         class="paibantablitem"
-                         :columns="tablecolumsheaderchildren"
-                         :pagination="false"
-                         :dataSource="record.fzArry">
-                </a-table> -->
                 <template slot="operation"
                           slot-scope="text,record">
                   <div v-for="item in record.fzArry"
                        :key="item.xm"
                        class="dragItem">
                     <div class="site">
-
+                      <a-popconfirm :title="tableweekdatatitlexm"
+                                    :visible="tableweekdataxm"
+                                    ok-text="Yes"
+                                    cancel-text="No"
+                                    @confirm="tableweekdatapopconfirmxm"
+                                    @cancel="tableweekdatacancelxm">
+                      </a-popconfirm>
                       <span color="#ecf3f7">
                         {{item.xm}}
                       </span>
@@ -99,30 +130,11 @@
                        :defaultExpandAllRows="true"
                        :expandedRowKeys="expandedRowKeys "
                        :data-source="tabledata">
-                <!-- <template slot="operation"
-                          slot-scope="text,record">
-                  <draggable class="oldbox"
-                             :id="record.fzmc"
-                             group="site"
-                             @end="ontoEnd"
-                             @change="tohandleDraggableFormItemChange"
-                             v-model="record.fzArry">
-                    <div class="site"
-                         @click="perclick(item)"
-                         :distance="1">
-                      <span color="#ecf3f7">
-                        {{record.xm}}
-                      </span>
-                      <a-tag color="purple">
-                        {{record.hsnjmc}}
-                      </a-tag>
-                    </div>
-                  </draggable>
-                </template> -->
 
                 <a-table slot-scope="record"
                          slot="expandedRowRender"
                          :showHeader="false"
+                         v-if="record.fzArry.length>0"
                          class="paibantablitem"
                          :columns="childrencolumns"
                          :pagination="false"
@@ -131,25 +143,32 @@
                   <template slot="xm"
                             slot-scope="text,record">
                     <div class="site"
-                         @click="perclick(record)"
-                         :distance="1">
-                      <span @click="movexm(record,'up')"
-                            class="jiantou jiantou-left">
-                        <a-icon type="arrow-up" />
-                      </span>
-                      <span color="#ecf3f7">
-                        {{record.xm}}
-                      </span>
-                      <a-tag color="purple">
-                        {{record.hsnjmc}}
-                      </a-tag>
-                      <span @click="movexm(record,'down')"
-                            class="jiantou jiantou-right">
-                        <a-icon type="arrow-down" />
-                      </span>
+                         v-show="record.xm"
+                         style="position:relative">
+                      <div @click="perclick(record)"
+                           class="clickxmitem jiantou-left"
+                           :distance="1">
+                        <span color="#ecf3f7">
+                          {{record.xm}}
+                        </span>
+                        <a-tag color="purple">
+                          {{record.hsnjmc}}
+                        </a-tag>
+                      </div>
+                      <div class="clickxmitem jiantou-right">
+                        <span @click="movexm(record,'up')"
+                              class="jiantou ">
+                          <a-icon type="arrow-up" />
+                        </span>
+                        <span @click="movexm(record,'down')"
+                              class="jiantou ">
+                          <a-icon type="arrow-down" />
+                        </span>
+
+                      </div>
+
                     </div>
-                    <div @click="perclick(record)"
-                         :distance="1">
+                    <div :distance="1">
                       <draggable class="oldbox"
                                  :id="record.fzmc"
                                  group="site"
@@ -166,11 +185,15 @@
                   <template slot="mon"
                             slot-scope="text,record">
                     <div class="dargBtn"
-                         @click="perclick(record)"
+                         :style="{'background-color': resweekdaycolor(record.mon)}"
                          :distance="1">
-                      <span color="#ecf3f7">
+                      <span>
                         {{record.mon}}
                       </span>
+                      <!-- <a-tag :color="record.xsys"
+                             style="min-width:20px;min-height:20px">
+                        {{record.mon}}
+                      </a-tag> -->
                       <span class="bancipaiban"
                             v-if="!record.mon">
                         0
@@ -195,7 +218,7 @@
                   <template slot="tue"
                             slot-scope="text,record">
                     <div class="dargBtn"
-                         @click="perclick(record)"
+                         :style="{'background-color': resweekdaycolor(record.tue)}"
                          :distance="1">
                       <span color="#ecf3f7">
                         {{record.tue}}
@@ -222,7 +245,7 @@
                   <template slot="wed"
                             slot-scope="text,record">
                     <div class="dargBtn"
-                         @click="perclick(record)"
+                         :style="{'background-color': resweekdaycolor(record.wed)}"
                          :distance="1">
                       <span color="#ecf3f7">
                         {{record.wed}}
@@ -249,7 +272,7 @@
                   <template slot="thu"
                             slot-scope="text,record">
                     <div class="dargBtn"
-                         @click="perclick(record)"
+                         :style="{'background-color': resweekdaycolor(record.thu)}"
                          :distance="1">
                       <span color="#ecf3f7">
                         {{record.thu}}
@@ -276,7 +299,7 @@
                   <template slot="fri"
                             slot-scope="text,record">
                     <div class="dargBtn"
-                         @click="perclick(record)"
+                         :style="{'background-color': resweekdaycolor(record.fri)}"
                          :distance="1">
                       <span color="#ecf3f7">
                         {{record.fri}}
@@ -303,7 +326,7 @@
                   <template slot="sat"
                             slot-scope="text,record">
                     <div class="dargBtn"
-                         @click="perclick(record)"
+                         :style="{'background-color': resweekdaycolor(record.sat)}"
                          :distance="1">
                       <span color="#ecf3f7">
                         {{record.sat}}
@@ -330,7 +353,7 @@
                   <template slot="sun"
                             slot-scope="text,record">
                     <div class="dargBtn"
-                         @click="perclick(record)"
+                         :style="{'background-color': resweekdaycolor(record.sun)}"
                          :distance="1">
                       <span color="#ecf3f7">
                         {{record.sun}}
@@ -357,37 +380,42 @@
                   </template>
 
                 </a-table>
+                <!-- <template slot="expandedRowRender"
+                          slot-scope="record"
+                          v-if="record.fzArry.length<1">
+                  <div v-for="item in record.fzArry"
+                       :key="item.xm"
+                       class="dragItem">
+                    <div class="site">
+                      <a-popconfirm :title="tableweekdatatitlexm"
+                                    :visible="tableweekdataxm"
+                                    ok-text="Yes"
+                                    cancel-text="No"
+                                    @confirm="tableweekdatapopconfirmxm"
+                                    @cancel="tableweekdatacancelxm">
+                      </a-popconfirm>
+                      <span color="#ecf3f7">
+                        {{item.xm}}
+                      </span>
+                      <a-tag color="purple">
+                        {{item.hsnjmc}}
+                      </a-tag>
 
+                    </div>
+                  </div>
+                </template> -->
               </a-table>
             </div>
           </div>
         </a-col>
-        <!-- <a-col :span="15">
-          <div class="dullcalendarcontent">
-            <FullCalendar id="fullCalendar"
-                          ref="fullCalendar"
-                          :options="calendarOptions" />
-          </div>
-        </a-col> -->
         <a-col :span="3">
           <div style="padding-left:10px">
-            <a-button type="primary"
-                      size="small"
-                      @click="changrounping('班次类型')"
-                      class="functionbutton">
-              班次类型
-            </a-button>
-            <a-button type="primary"
-                      size="small"
-                      @click="changrounping('班次分组')"
-                      class="functionbutton">
-              班次分组
-            </a-button>
+
             <div class="shifttypecontent">
               <div v-if="changrounpingshow">
                 <div class="fc-event"
                      v-for="(item,index) in fceventarry1"
-                     :key="index">
+                     :key="item.bcid">
                   <draggable :group="{ name: 'banci', pull: 'clone',  put: false }"
                              @start="onStart"
                              class="oldbox"
@@ -395,13 +423,21 @@
                              @change="handleDraggableFormItemChange"
                              @move="checkMove"
                              v-model="fceventarry1"
-                             :id="item.id">
+                             :id="item.bcmc">
                     <div class="dragItemdiv">
                       <div class="banci">
-                        <!-- <span color="#ecf3f7">
-                              {{item.name}}
-                            </span> -->
-                        <a-tag color="#f50">{{item.name}}</a-tag>
+                        <!-- <span :style="{'background-color': item.xsys === '#ffffff' ? '#ededed' :item.xsys}"
+                              :color="item.xsys"
+                              class="bamcitag">
+                          <a-icon type="fullscreen" />
+                        </span> -->
+                        <span :style="{'background-color': item.xsys}"
+                              :color="item.xsys"
+                              class="bamcitag">
+                          <a-icon type="fullscreen" />
+                        </span>
+                        <a-tag :color="item.xsys"
+                               :style="{'color': item.xsys === '#ffffff' ? '#000000' : '#fff'}">{{item.bcmc}}</a-tag>
                       </div>
 
                     </div>
@@ -417,7 +453,7 @@
                 <div class="pdleft pdright">
                   <div class="dragItembox">
                     <div v-for="item in fceventarry1"
-                         :key="item.id"
+                         :key="item.bcmc"
                          class="dragItem">
                       <draggable :group="{ name: 'banci', pull: 'clone',  put: false }"
                                  @start="onStart"
@@ -426,7 +462,7 @@
                                  @change="handleDraggableFormItemChange"
                                  @move="checkMove"
                                  v-model="fceventarry1"
-                                 :id="item.id">
+                                 :id="item.bcmc">
                         <div class="dragItemdiv">
                           <div class="banci">
                             <span color="#ecf3f7">
@@ -455,8 +491,8 @@ import draggable from 'vuedraggable'
 // @ is an alias to /src
 import 'jquery'
 // import moment from 'moment'
-import { getResPersonnelData } from '../assets/js/newScheDuing.js'
-import { getPbjhList } from '@/api/scheduing'
+import { getResPersonnelData, getMoveupdown } from '../assets/js/newMyScheDuing.js'
+import { getPbjhList, getPbbcxx, getPbyhfzxx, getPbyhxxBybqid } from '@/api/scheduing'
 // import '../assets/js/v-drag.js'
 // import tes from './tuiCalender.vue'
 export default {
@@ -517,35 +553,8 @@ export default {
           "jhsj": null,
           "bz": null
         }],
-      // data: [
-      //   {
-      //     key: '1',
-      //     fzArry: [
-      //       { xm: 'aaa', id: 1 },
-      //       { xm: 'bbb', id: 2 }
-      //     ],
-      //     name: 'John Brown',
-
-      //   },
-      // ],
       tabledata: [],
       columns: [
-
-        // {
-        //   title: 'Name',
-        //   dataIndex: 'name',
-        //   customRender: (text, row, index) => {
-        //     if (index < 4) {
-        //       return <a href="javascript:;">{text}</a>;
-        //     }
-        //     return {
-        //       children: <a href="javascript:;">{text}</a>,
-        //       attrs: {
-        //         colSpan: 5,
-        //       },
-        //     };
-        //   },
-        // },
         {
           title: '',
           align: 'center',
@@ -567,6 +576,7 @@ export default {
           // dataIndex: 'operation',
           dataIndex: 'mon',
           // width: '150px',
+          width: '90px',
           scopedSlots: { customRender: 'mon' }
           // dataIndex: 'mon'
         },
@@ -574,41 +584,47 @@ export default {
           title: '周二',
           align: 'center',
           dataIndex: 'tue',
+          width: '90px',
           scopedSlots: { customRender: 'tue' }
         },
         {
           title: '周三',
           align: 'center',
           dataIndex: 'wed',
+          width: '90px',
           scopedSlots: { customRender: 'wed' }
         },
         {
           title: '周四',
           align: 'center',
+          width: '90px',
           dataIndex: 'thu',
           scopedSlots: { customRender: 'thu' }
         },
         {
           title: '周五',
           align: 'center',
+          width: '90px',
           dataIndex: 'fri',
           scopedSlots: { customRender: 'fri' }
         },
         {
           title: '周六',
+          width: '90px',
           align: 'center',
           scopedSlots: { customRender: 'sat' },
           dataIndex: 'sat'
         },
         {
           title: '周日',
+          width: '90px',
           align: 'center',
           scopedSlots: { customRender: 'sun' },
           dataIndex: 'sun'
         },
         {
           title: '本周工时',
-          width: '38px',
+          width: '34px',
           align: 'center',
           scopedSlots: { customRender: 'sqgsTotal' },
           dataIndex: 'sqgs'
@@ -616,12 +632,12 @@ export default {
         {
           title: '多周工时',
           align: 'center',
-          width: '38px'
+          width: '34px'
         },
         {
           title: '全部工时',
           align: 'center',
-          width: '50px',
+          width: '38px',
           scopedSlots: { customRender: 'sqgsTotal' },
           dataIndex: 'sqgsTotal'
         }
@@ -630,7 +646,7 @@ export default {
       temp: {}, //当前重复的值,支持多列
       tablecolumsheader: [
         {
-          // title: '分组名称',
+          title: '',
           dataIndex: 'fzmc',
           width: '60px',
           align: 'center'
@@ -639,6 +655,7 @@ export default {
           title: '',
           dataIndex: 'operation',
           width: '1px',
+
           scopedSlots: { customRender: 'operation' },
           customHeaderCell: this.customHeaderCell
         }
@@ -681,21 +698,13 @@ export default {
         {
           title: 'xm',
           dataIndex: 'xm',
-          align: 'center',
+          align: 'left',
           width: '126px',
           key: 'xm',
           scopedSlots: { customRender: 'xm' },
           sorter: (a, b) => a.xm - b.xm,
           customHeaderCell: this.customHeaderCell
         },
-        // {
-        //   title: '',
-        //   // dataIndex: 'operation',
-        //   width: '150px',
-        //   key: 'id',
-        //   scopedSlots: { customRender: 'operation' },
-        //   customHeaderCell: this.customHeaderCell
-        // },
         {
           title: '周一',
           align: 'center',
@@ -757,7 +766,7 @@ export default {
         },
         {
           title: '本周工时',
-          width: '38px',
+          width: '34px',
           align: 'center',
           scopedSlots: { customRender: 'sqgs' },
           dataIndex: 'sqgs'
@@ -765,7 +774,7 @@ export default {
         {
           title: '多周工时',
           align: 'center',
-          width: '38px',
+          width: '34px',
           customRender: (value, row, index) => {
             if (row.sqgsTotal && row.sqgs) {
               return row.sqgsTotal - row.sqgs
@@ -792,28 +801,29 @@ export default {
       toelmentobj: '', // 被拖拽的元素对象
       drag: false,
       contentHeight: document.documentElement.clientHeight - 80,
-      fceventarry1: [
-        {
-          name: '白班',
-          leve: '1',
-          id: '白班'
-        },
-        {
-          name: '夜班',
-          leve: '2',
-          id: '夜班'
-        },
-        {
-          name: '巡',
-          leve: '4',
-          id: '巡'
-        },
-        {
-          name: 'A班',
-          leve: '4',
-          id: 'A班'
-        }
-      ],
+      fceventarry1: [],
+      // fceventarry1: [
+      //   {
+      //     name: '白班',
+      //     leve: '1',
+      //     id: '白班'
+      //   },
+      //   {
+      //     name: '夜班',
+      //     leve: '2',
+      //     id: '夜班'
+      //   },
+      //   {
+      //     name: '巡',
+      //     leve: '4',
+      //     id: '巡'
+      //   },
+      //   {
+      //     name: 'A班',
+      //     leve: '4',
+      //     id: 'A班'
+      //   }
+      // ],
       events: [
         {
           id: '1',
@@ -831,11 +841,21 @@ export default {
           // "end": "2021-07-22T14:00:00+00:00"
         }
       ],
+      pbyhfzdata: [],
       currentEvents: [],
       tableweekdatavisible: false,
       changrounpingshow: true,
       tableweekdatatitle: '',
-      condition: true
+      condition: true,
+      tableweekdatatitlexm: '',
+      tableweekdataxm: false,
+      changrounpingshowxm: true,
+      daystrobj: {
+        daystr: '',
+        obj: {}
+      }, // 存储移除日程信息
+      perpomove: '' // 记录移除组员信息
+
     }
   },
   methods: {
@@ -928,13 +948,52 @@ export default {
           console.log(getResPersonnelData(data.rows))
           // 在此处理给elementsdata赋值
           // this.elementsdata
-          let resdata = getResPersonnelData(data.rows)
+          let resdata = getResPersonnelData(data.rows, this.pbyhfzdata)
           // this.$store.dispatch("updateElementsAsync", resdata)
           this.$store.commit("updateElements", resdata)
           this.tabledata = this.elementsdata
           // this.tabledata = resdata
           this.openallchildrentable()
           this.$forceUpdate()
+        }
+      })
+    },
+    resGetPbbcxx (params) {
+      // 调取班次列表getPbbcxx
+      getPbbcxx(params.bqid, params.bcmc, params.page, params.pageSize).then(data => {
+        console.log(data)
+        if (data) {
+          console.log(data)
+          this.loading = false
+          this.fceventarry1 = data.rows
+        }
+      })
+    },
+    resgetPbyhfzxx (params) {
+      // 调取人员分组列表
+      getPbyhfzxx(params.bqid, params.page, params.pageSize).then(resdata => {
+        if (resdata) {
+          console.log(resdata)
+          this.pbyhfzdata = resdata.rows
+          // 调取排班列表
+          this.fetch({
+            bqid: 270, // 暂时写死
+            pageSize: 12,
+            page: 1,
+            searchDate: '2021-07-12'
+          })
+        }
+      })
+    },
+    resgetPbyhxxBybqid (params) {
+      getPbyhxxBybqid(params.bqid, params.searchDate).then(resdata => {
+        if (resdata) {
+          console.log(resdata)
+          // 处理成我需要的数据
+
+          // 1左侧人员列表首先去除已经拍过班的人员
+          // 2当右侧表格中删除一个分组人员时，把删除的人员数据清空添加到左侧的人员列表中
+          // 这样就可以维护分组和病区人员数据了
         }
       })
     },
@@ -975,20 +1034,29 @@ export default {
         // 把数据更新到表格中去
         this.tabledata.map(per => {
           if (per.fzmc === toid) {
-            console.log('把数据更新到被拖拽元素的分组中', this.toelmentobj, toid, idn, idn - 0)
-            let tonewIndex = e.to.parentElement.parentElement.rowIndex
-            console.log('把数据更新到被拖拽元素的分组中的位置', tonewIndex)
-            per.fzArry.splice(tonewIndex, 0, this.toelmentobj)
-            // per.fzArry.splice(idn + 1, 0, this.toelmentobj)
-            // per.fzArry.push(this.toelmentobj)
-            // per.fzarry[] = this.toelmentobj
-            // 在此更新下storn中的表格数据
-            this.temp = {}
-            // this.$store.commit("updateElements", this.tabledata)
+            // console.log('把数据更新到被拖拽元素的分组中', this.toelmentobj, toid, idn, idn - 0)
+            let tonewIndex = e.to.parentElement.parentElement.parentElement.rowIndex
+            // console.log('把数据更新到被拖拽元素的分组中的位置', tonewIndex)
+            if (per.fzArry.length === 1) { // 当被拖拽元素的分组长度为1的时候
+              // console.log('把数据更新到被拖拽元素的分组中的位置的数据', per.fzArry[0], this.toelmentobj, !per.fzArry[0].xm)
+              if (!per.fzArry[0].xm) {  // 当被拖拽元素的分组长度名称为空的时候，此时数组中是空的数据
+                // 此时把空数据替换成新的数据即可
+                // console.log('把数据更新到被拖拽元素的分组中的位置', this.toelmentobj)
+                per.fzArry.splice(0, 1, this.toelmentobj)
+              }
+            } else {
+              per.fzArry.splice(tonewIndex, 0, this.toelmentobj)
+              // per.fzArry.splice(idn + 1, 0, this.toelmentobj)
+              // per.fzArry.push(this.toelmentobj)
+              // per.fzarry[] = this.toelmentobj
+              // 在此更新下storn中的表格数据
+              this.temp = {}
+              // this.$store.commit("updateElements", this.tabledata)
 
-            // this.tabledata = this.elementsdata
-            console.log('左侧拖拽完成后更新下storn中的表格数据')
-            this.$forceUpdate()
+              // this.tabledata = this.elementsdata
+              console.log('左侧拖拽完成后更新下storn中的表格数据')
+              this.$forceUpdate()
+            }
           }
         })
       }
@@ -1064,6 +1132,19 @@ export default {
       })
       // console.log('改变被拖拽元素的分组名称', this.toelmentobj, toid)
     },
+    resweekdaycolor (bc) {
+      // 在此返回对应的颜色
+      // console.log('班次名称', bc)
+      var color = ''
+      this.fceventarry1.map(per => {
+        if (per.bcmc === bc) {
+          // console.log('班次名称', bc, per.xsys)
+          color = per.xsys
+          return color
+        }
+      })
+      return color
+    },
     datadragEnd (list) {
       console.log('datadragEnd排班安排的目的地', list)
       this.$message({
@@ -1131,29 +1212,108 @@ export default {
       console.log('上下移动', record, any)
       if (any === 'up') {
         // 向上移动
+        // 找到 向上移动元素所在位置
+        this.tabledata.map((per, inx) => {
+          if (per.fzmc === record.fzmc) {
+            console.log('向上移动元素所在位置', per)
+            per.fzArry.map((per2, inx2) => {
+              if (per2.yhid === record.yhid) {
+                //  在此判断是上移到最上面的时候移动到最下面
+                console.log('最上面', inx2, per.fzArry.length)
+                getMoveupdown(per.fzArry, inx2, inx2 - 1)
+              }
+            })
+          }
+        })
       }
       if (any === 'down') {
         // 向下移动
+        // 找到 向上移动元素所在位置
+        this.tabledata.map((per, inx) => {
+          if (per.fzmc === record.fzmc) {
+            // console.log('向上移动元素所在位置', per)
+            per.fzArry.map((per2, inx2) => {
+              if (per2.yhid === record.yhid) {
+                //  在此判断是上移到最上面的时候移动到最下面
+                console.log('最下面', inx2, per.fzArry.length, per2, record)
+                if (per.fzArry.length - 1 === inx2) {
+                  // console.log('最下面', inx2, per.fzArry.length, per2, record)
+                  // getMoveupdown(per.fzArry, inx2, inx2 + 1)
+                  this.$message.warning('已经移动到最下面了')
+                } else {
+                  getMoveupdown(per.fzArry, inx2, inx2 + 1)
+                }
+              }
+            })
+          }
+        })
       }
     },
     perclick (record) {
       console.log(record)
+      // 是否把移除此分组
+      // this
+      this.perpomove = record.xm
+      this.tableweekdatavisible = true
+      this.tableweekdatatitle = '您确定要把' + record.xm + '从' + record.fzmc + '移除吗'
     },
     tableweekdataclick (record, day) {
       console.log(record, day)
-      this.tableweekdatavisible = true
-      let daystr = this.returnweekday(day)
-      this.tableweekdatatitle = '您确定要取消  ' + record.xm + '   ' + '   ' + daystr + '的日程安排吗'
+      var daystr = ''
+      daystr = this.returnweekday(day, record)
+      console.log(daystr)
+      this.tableweekdataxm = true
+      this.tableweekdatatitlexm = '您确定要取消  ' + record.xm + '   ' + '   ' + daystr + '的日程安排吗'
     },
     tableweekdataconfirm (e) {
       console.log(e)
       this.tableweekdatavisible = false
-      this.$message.success('Click on Yes')
+      // 把人移除数组组
+      this.tabledata.map((per, inx) => {
+        // console.log('向上移动元素所在位置', per)
+
+        per.fzArry.map((per2, inx2) => {
+          if (per2.xm === this.perpomove) {
+            //  在此判断是上移到最上面的时候移动到最下面
+            console.log('删除的组员', per2, this.perpomove)
+            if (per.fzArry.length === 1) {
+              // 在这里用一个空的模板数据代替
+              let emptyobj = {
+                "bcmc": null,
+                "xm": "",
+                "mon": null,
+                "tue": null,
+                "wed": null,
+                "thu": null,
+                "fri": null,
+                "sat": null,
+                "sun": null,
+                "sqgs": 0,
+                "sqgsTotal": null,
+                "fzmc": per.fzArry[0].fzmc,
+                "fzgc": null,
+                "hsnjmc": "",
+                "yhid": "",
+                "jhid": null,
+                "ksid": null,
+                "jhsj": null,
+                "bz": null
+              }
+              per.fzArry.splice(0, 1, emptyobj)
+            } else {
+              per.fzArry.splice(inx2, 1)
+              // 如果此时只有一个组员那么给此分组一个只有分组名称和其他属性，但是没有xm和id
+            }
+          }
+        })
+      })
+      // this.perpomove
+      this.$message.success('Click on Yes 左侧移除')
     },
     tableweekdatacancel (e) {
       console.log(e)
       this.tableweekdatavisible = false
-      this.$message.error('Click on No')
+      this.$message.error('Click on No左侧取消')
     },
     handleVisibleChange (visible) {
       if (!visible) {
@@ -1168,22 +1328,89 @@ export default {
         this.tableweekdatavisible = true
       }
     },
-    returnweekday (day) {
+    returnweekday (day, record) {
       switch (day) {
-        case 'mon': return '星期一'
+        case 'mon':
+          this.daystrobj.daystr = 'mon'
+          this.daystrobj.obj = record
+          // console.log(this.daystrobj)
+          return '星期一'
           break
-        case 'tue': return '星期二'
+        case 'tue':
+          this.daystrobj.daystr = 'tue'
+          this.daystrobj.obj = record
+          return '星期二'
           break
-        case 'wed': return '星期三'
+        case 'wed':
+          this.daystrobj.daystr = 'wed'
+          this.daystrobj.obj = record
+          return '星期三'
           break
-        case 'thu': return '星期四'
+        case 'thu':
+          this.daystrobj.daystr = 'thu'
+          this.daystrobj.obj = record
+          return '星期四'
           break
-        case 'fri': return '星期五'
+        case 'fri':
+          this.daystrobj.daystr = 'fri'
+          this.daystrobj.obj = record
+          return '星期五'
           break
-        case 'sat': return '星期六'
+        case 'sat':
+          this.daystrobj.daystr = 'sat'
+          this.daystrobj.obj = record
+          return '星期六'
           break
-        case 'sun': return '星期日'
+        case 'sun':
+          this.daystrobj.daystr = 'sun'
+          this.daystrobj.obj = record
+          return '星期日'
           break
+      }
+    },
+    tableweekdatapopconfirmxm (e) {
+      console.log('正在匹配删除的日程', e, this.daystrobj)
+      // this.daystrobj
+      switch (this.daystrobj.daystr) {
+        case 'mon':
+          this.daystrobj.obj.mon = null
+          break
+        case 'tue':
+          this.daystrobj.obj.tue = null
+          break
+        case 'wed':
+          this.daystrobj.obj.wed = null
+          break
+        case 'thu':
+          this.daystrobj.obj.thu = null
+          break
+        case 'fri':
+          this.daystrobj.obj.fri = null
+          break
+        case 'sat':
+          this.daystrobj.obj.sat = null
+          break
+        case 'sun':
+          this.daystrobj.obj.sun = null
+          break
+      }
+      // console.log(this.daystrobj)
+      this.$message.success('已经删除此日程了')
+      this.tableweekdataxm = false
+    },
+    tableweekdatacancelxm (e) {
+      // console.log(e, 'Click on No右侧点击No')
+      this.tableweekdataxm = false
+      this.$message.error('取消删除此日程')
+    },
+    childMethod (val) {
+      console.log(val)
+      // 排班编辑保存
+      if (val === '班次排班保存') {
+        this.$emit('schedulinghandleCancel')
+      } else {
+        // 排班编辑取消
+        this.$emit('schedulinghandleCancel')
       }
     },
     // 渲染之后 自定义html
@@ -1278,24 +1505,37 @@ export default {
         // 打开班次分组事件组
         this.changrounpingshow = false
       }
-    },
-    toggleWeekends: function () {
-      this.calendarOptions.weekends = !this.calendarOptions.weekends // toggle the boolean!
-    }    // 日程保存
+    }
 
   },
   created () {
   },
 
   mounted () {
-    this.fetch({
+    // 调取左侧人员列表
+    let bqrylb =
+    {
       bqid: 270, // 暂时写死
-      pageSize: 12,
-      page: 1,
       searchDate: '2021-07-12'
-    })
-    console.log(this.elementsdata)
+    }
+    this.resgetPbyhxxBybqid(bqrylb)
+    let paramsfzxx = {
+      bqid: 270, // 暂时写死
+      pageSize: 10,
+      page: 1
+    }
+    // 调取分组列表
+    this.resgetPbyhfzxx(paramsfzxx)
 
+    let params = {
+      bqid: '', // 270暂时写死
+      bcmc: '',
+      pageSize: 30,
+      page: 1
+
+    }
+    // 调取班次列表getPbbcxx
+    this.resGetPbbcxx(params)
     // 为了防止火狐浏览器拖拽的时候以新标签打开
     document.body.ondrop = function (event) {
       event.preventDefault()
@@ -1396,14 +1636,18 @@ export default {
   height: 258px;
 }
 .shifttypecontent {
+  padding-top: 6px;
   .fc-event {
     width: 50%;
     display: inline-block;
     .ant-tag {
-      margin: 0 0px 8px;
-      padding: 8px 12px;
-      width: 50px;
+      cursor: pointer;
+      margin: 0 0px 6px;
+      padding: 6px 0px 6px 5px;
+      width: 72%;
       display: inline-block;
+      border: 1px solid #ececec;
+      // color: #666666;
     }
   }
   .dragItembox {
@@ -1444,6 +1688,7 @@ export default {
   background-color: #ecf3f7;
 }
 .tablist {
+  padding-top: 6px;
   // flex: 0 0 auto;
   // float: left;
   // padding-top: 58px;
@@ -1483,7 +1728,7 @@ export default {
 }
 .paibantabl {
   overflow: hidden;
-  padding-left: 60px;
+  padding-left: 12px;
 }
 .bancipaiban {
   -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
@@ -1493,6 +1738,9 @@ export default {
 </style>
 <style>
 /* 禁止日历滚动 */
+#external-events {
+  border: 1px solid #ececec;
+}
 .bancituozhuai {
   height: 10px;
   width: 10px;
@@ -1597,7 +1845,7 @@ export default {
   width: 60px;
   position: absolute;
   z-index: 10;
-  left: 34px;
+  left: 0px;
 }
 .tablecolumsheader table {
   /* border-top: none !important;
@@ -1645,6 +1893,7 @@ export default {
 .tablecolumsheadertd td:nth-child(2n-1) {
   border: 1px solid #c5dae9;
   background-color: #fff;
+  height: 33px;
 }
 .tablecolumsheadertd td:nth-child(2n) .dragItem {
   height: 38px;
@@ -1670,12 +1919,18 @@ export default {
 }
 .jiantou-left {
   position: absolute;
-  left: 6px;
+  left: 10px;
+  top: -9px;
   z-index: 40;
 }
 .jiantou-right {
   position: absolute;
-  right: 6px;
+  right: 10px;
+  top: -9px;
+  z-index: 40;
+}
+.clickxmitem {
+  position: absolute;
   z-index: 40;
 }
 .ant-popover {
@@ -1689,4 +1944,37 @@ export default {
   margin-left: -5% !important;
   margin-top: -5% !important;
 }
+.modulheadbox {
+  border-bottom: 1px solid #ececec;
+}
+.modulhead {
+  text-align: right;
+  margin-right: 60px;
+}
+.bancibtn {
+  padding-top: 4px;
+}
+.bamcitag {
+  height: 22px;
+  width: 18px;
+  display: inline-block;
+  padding-top: 0px;
+  border: 1px solid#ececec;
+}
+.bamcitag i {
+  color: #fff;
+  /* background-color: #fff; */
+}
+.myscheduing .ant-modal-header {
+  display: none;
+}
+.myscheduing .ant-modal-footer {
+  /* display: none; */
+}
+/* .paibantabl .ant-empty-normal {
+  height: 34px !important;
+  margin: 0 !important;
+  padding: 2px !important;
+   display: none !important;
+} */
 </style>

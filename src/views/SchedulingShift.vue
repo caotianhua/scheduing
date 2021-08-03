@@ -3,6 +3,11 @@
     <div class="groupingbox">
       <div class="grouping">
         <a-row>
+          <!-- <a-col :span="24">
+            <span class="groupingname">
+              班次列表 :
+            </span>
+          </a-col> -->
           <a-col :span="12">
             <span class="groupingname">
               班次名称 :
@@ -37,11 +42,16 @@
       </div>
       <div class="groupingcontent">
         <a-table :columns="columns"
-                 :row-key="record => record.fzmc"
+                 :row-key="record => record.yhid"
                  :data-source="data"
                  :pagination="pagination"
                  :loading="loading"
                  @change="handleTableChange">
+          <template slot="xsys"
+                    slot-scope="text, record">
+            <a-tag :color="text"
+                   style="width:20px;height:20px"></a-tag>
+          </template>
           <template slot="operation"
                     slot-scope="text, record">
             <a-button type="primary"
@@ -91,6 +101,30 @@
                              prop="name">
             <a-input v-model="form.name" />
           </a-form-model-item>
+          <a-form-model-item label="班次类别"
+                             prop="bclb">
+            <a-select v-model="form.bclb"
+                      style="width: 120px"
+                      @change="handleChange">
+              <a-select-option value="0">
+                白班
+              </a-select-option>
+              <a-select-option value="1">
+                晚班
+              </a-select-option>
+              <a-select-option value="2"
+                               disabled>
+                夜班
+              </a-select-option>
+              <a-select-option value="3">
+                非工作
+              </a-select-option>
+              <a-select-option value="4">
+                其它
+              </a-select-option>
+            </a-select>
+            <!-- <a-input v-model="form.index" /> -->
+          </a-form-model-item>
           <a-form-model-item label="排队序号"
                              prop="index">
             <a-input-number @change="formindexchange"
@@ -135,23 +169,102 @@ export default {
         {
           title: '类型',
           dataIndex: 'type',
-          align: 'center'
+          align: 'center',
+          customRender: (value, row, index) => {
+            return '通用'
+          }
         },
         {
           title: '班次名称',
-          dataIndex: 'fzmc',
+          dataIndex: 'bcmc',
+          align: 'center'
+        },
+        {
+          title: '类别',
+          dataIndex: 'bclb',
           align: 'center',
-          width: '20%'
+          customRender: (value, row, index) => {
+            if (value === 0) {
+              return '白班'
+            }
+            if (value === 1) {
+              return '晚班'
+            }
+            if (value === 2) {
+              return '夜班'
+            }
+            if (value === 3) {
+              return '非工作'
+            }
+            if (value === 4) {
+              return '其他'
+            }
+          }
+        },
+        {
+          title: '时段1开始',
+          dataIndex: 'sd1ks',
+          align: 'center'
+        },
+        {
+          title: '时段1结束',
+          dataIndex: 'sd1js',
+          align: 'center'
+        },
+        {
+          title: '时段2开始',
+          dataIndex: 'sd2ks',
+          align: 'center'
+        },
+        {
+          title: '时段2结束',
+          dataIndex: 'sd2js',
+          align: 'center'
+        },
+        {
+          title: '时段3开始',
+          dataIndex: 'sd3ks',
+          align: 'center'
+        },
+        {
+          title: '时段3结束',
+          dataIndex: 'sd3js',
+          align: 'center'
+        },
+        {
+          title: '工时',
+          dataIndex: 'gs',
+          align: 'center'
+        },
+        {
+          title: '系数',
+          dataIndex: 'xs',
+          align: 'center'
+        },
+        {
+          title: '颜色',
+          dataIndex: 'xsys',
+          align: 'center',
+          scopedSlots: { customRender: 'xsys' }
+        },
+        {
+          title: '备注',
+          dataIndex: 'bz',
+          align: 'center'
+        },
+        {
+          title: '管床',
+          dataIndex: 'gc',
+          align: 'center'
         },
         {
           title: '班次序号',
           dataIndex: 'plxh',
-          align: 'center',
+          align: 'center'
           // filters: [
           //   { text: 'Male', value: 'male' },
           //   { text: 'Female', value: 'female' },
           // ],
-          width: '20%'
         },
         {
           title: '操作',
@@ -182,7 +295,9 @@ export default {
       labelCol: { span: 4 },
       wrapperCol: { span: 4 },
       form: {
-        name: ''
+        name: '',
+        bclb: '',
+        index: ''
 
       },
       rules: {
@@ -215,6 +330,9 @@ export default {
               }
             }
           }
+        ],
+        bclb: [
+          { required: true, message: '班次类别为必选项', trigger: 'blur' }
         ]
 
       }
@@ -234,6 +352,7 @@ export default {
     handleCancel (e) {
       this.visible = false
     },
+    handleChange () { },
     shiftGrouping () { },
     personnelGrouping () { },
     handleTableChange (pagination, filters, sorter) {
@@ -242,7 +361,7 @@ export default {
       pager.current = pagination.current
       this.pagination = pager
       this.fetch({
-        bqid: 270, // 暂时写死
+        bqid: '', // 270暂时写死
         bcmc: '',
         pageSize: pagination.pageSize,
         page: pagination.current
@@ -291,7 +410,7 @@ export default {
           console.log(this.form)
           // 在这里提交新增加的分组信息
           let newgrouping = {
-            fzmc: this.form.name,
+            bcmc: this.form.name,
             plxh: this.form.index
           }
           // getSavePbyhfzxx(newgrouping).then(res=>{
@@ -313,17 +432,18 @@ export default {
         this.modaltitle = '修改班次'
         // 打开modal框
         // 请求分组信息
-        getPbyhfzxxById(rod.fzid).then(res => {
-          console.log(res)
-          if (res && res.data) {
-            // 请求接口
-            this.form.name = res.data.fzmc
-            this.form.index = res.data.plxh
-            this.showModal()
-          }
-        })
-        this.form.name = rod.fzmc
+        // getPbyhfzxxById(rod.fzid).then(res => {
+        //   console.log(res)
+        //   if (res && res.data) {
+        //     // 请求接口
+        //     this.form.name = res.data.bcmc
+        //     this.form.index = res.data.plxh
+        //     this.showModal()
+        //   }
+        // })
+        this.form.name = rod.bcmc
         this.form.index = rod.plxh
+        this.form.bclb = rod.bclb
         this.showModal()
       }
       if (str === '删除') {
@@ -364,9 +484,9 @@ export default {
   mounted () {
     this.fetch(
       {
-        bqid: 270, // 暂时写死
+        bqid: '', //270 暂时写死
         bcmc: '',
-        pageSize: 16,
+        pageSize: 30,
         page: 1
       }
     )
@@ -374,6 +494,10 @@ export default {
 }
 </script>
 <style lang="less">
+.groupingbox {
+  border: 1px solid #e8e8e8;
+  padding: 8px;
+}
 .querybtn {
   background: rgb(193, 240, 193);
   border: 1px solid rgb(193, 240, 193);

@@ -6,7 +6,8 @@ const api = {
   getPbyhfzxxById: 'altmm/sys/pbyhfzxx/getPbyhfzxxById', // 获取一条人员分组
   getSavePbyhfzxx: 'altmm/sys/pbyhfzxx/getSavePbyhfzxx', // 保存一条人员分组
   deletePbyhfzxx: 'altmm/sys/pbyhfzxx/deletePbyhfzxx', // 删除一条人员分组
-  getPbbcxx: 'altmm/sys/pbbcxx/getPbbcxx' //  班次管理 获取人员分组列表
+  getPbbcxx: 'altmm/sys/pbbcxx/getPbbcxx', //  班次管理 获取人员分组列表
+  getPbyhxxBybqid: 'altmm/sys/pbjh/getPbyhxxBybqid' // 获取病区人员信息
 }
 
 export default api
@@ -48,6 +49,12 @@ export function deletePbyhfzxx (id) {
 export function getPbbcxx (id, bcmc, page, pageSize) {
   return axios({
     url: api.getPbbcxx + '?bqid=' + id + '&bcmc=' + bcmc + '&page=' + page + '&rows=' + pageSize,
+    method: 'get'
+  })
+}
+export function getPbyhxxBybqid (id, searchDate) {
+  return axios({
+    url: api.getPbyhxxBybqid + '?bqid=' + id + '&searchDate=' + searchDate,
     method: 'get'
   })
 }
